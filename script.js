@@ -158,6 +158,7 @@ window.fetch('https://api.github.com/users/edwardscamera/repos').then(d => d.jso
     };
     let renderRepos = () => {
         let omit = ["edwardscamera.com"];
+        document.querySelector('#Project-ParentTable').innerText = '';
         data.forEach(repo => {
             if (!omit.includes(repo.name)) {
                 let layout = [
@@ -198,6 +199,15 @@ window.fetch('https://api.github.com/users/edwardscamera/repos').then(d => d.jso
                         content: "Live Application",
                     }],
                 });
+                if (repo.downloadlink) layout[0].children.push({
+                    tag: "h3",
+                    children: [{
+                        tag: "a",
+                        href: repo.downloadlink,
+                        target: "_blank",
+                        content: "Download " + repo.currentver,
+                    }],
+                });
                 layout[0].children.push(
                     { tag: "br" },
                     { tag: "br" },
@@ -213,17 +223,50 @@ window.fetch('https://api.github.com/users/edwardscamera/repos').then(d => d.jso
                 createLayout(layout, document.querySelector('#Project-ParentTable'));
             }
         });
+        createLayout([{
+            tag: 'div',
+            class: ["Project-Child"],
+            children: [{
+                tag: 'h3',
+                innerHTML: 'Looking for more information about these projects or other projects I\'m working on? Check out my <a href="https://github.com/edwardscamera" target="_blank">GitHub page</a> for source code and more about these projects.'
+            }]
+        }], document.querySelector('#Project-ParentTable'));
     };
     let loaded = new Array(data.length).fill(false);
     data.forEach(async repo => {
         window.fetch(`${repo.url}/commits`).then(d => d.json()).then(dat => {
             data[data.indexOf(repo)].lastCommitDate = new Date(dat[0].commit.author.date);
-            loaded[data.indexOf(repo)] = true;
-            if (!loaded.includes(false)) {
-                data = data.sort((a, b) => b.lastCommitDate.getTime() - a.lastCommitDate.getTime());
-                renderRepos();
-            };
+            window.fetch(`${repo.url}/releases`).then(d => d.json()).then(dat => {
+                if (dat.length > 0) {
+                    repo.currentver = dat[0].tag_name;
+                    window.fetch(dat[0].assets_url).then(d => d.json()).then(dat => {
+                        if (dat.length > 0 && dat[0].browser_download_url) {
+                            repo.downloadlink = dat[0].browser_download_url;
+                            console.log(dat[0]);
+                            loaded[data.indexOf(repo)] = true;
+                            if (!loaded.includes(false)) {
+                                data = data.sort((a, b) => b.lastCommitDate.getTime() - a.lastCommitDate.getTime());
+                                renderRepos();
+                            };
+                        } else {
+                            loaded[data.indexOf(repo)] = true;
+                            if (!loaded.includes(false)) {
+                                data = data.sort((a, b) => b.lastCommitDate.getTime() - a.lastCommitDate.getTime());
+                                renderRepos();
+                            };
+                        }
+                    });
+                } else {
+                    loaded[data.indexOf(repo)] = true;
+                    if (!loaded.includes(false)) {
+                        data = data.sort((a, b) => b.lastCommitDate.getTime() - a.lastCommitDate.getTime());
+                        renderRepos();
+                    };
+                }
+            });
+
         });
+
     });
 });
 
