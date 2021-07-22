@@ -83,7 +83,10 @@ body {
         right: 21px;
         top: 0px;
     }
-    #Content { padding: 15px; }
+    #Content {
+        padding: 15px;
+        width: 100%;
+    }
     #Project-ParentTable {
         text-align: center;
         font-size: 50px;
