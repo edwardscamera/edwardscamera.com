@@ -1,6 +1,6 @@
 const createLayout = (data, elmt) => {
     data.forEach(el => {
-        if (!el.tag) return;
+        if (data == undefined || !el.tag) return;
         let c = document.createElement(el.tag);
         Object.keys(el).forEach(prop => {
             switch (prop) {
@@ -40,6 +40,7 @@ for (let i = 0; i < 30; i++) {
 
     });
     clouds[i].x = Math.floor(Math.random() * window.innerWidth + (clouds[i].width * 2)) - clouds[i].width;
+    if (screen.width < 480) clouds[i].x = Math.min(clouds[i].x, window.innerWidth - clouds[i].width * 2.8);
     clouds[i].y = Math.random() * (window.innerHeight - clouds[i].width);
     clouds[i].element.src = "images/cloud.png";
     Object.assign(clouds[i].element.style, {
@@ -201,7 +202,7 @@ if (document.title.includes("projects")) window.fetch('https://api.github.com/us
                                 tag: "h3",
                                 content: repo.description,
                             },
-
+                            screen.width >= 480 ? { tag: "br" } : {},
                         ],
                     }
                 ];
@@ -224,15 +225,15 @@ if (document.title.includes("projects")) window.fetch('https://api.github.com/us
                     }],
                 });
                 layout[0].children.push(
-                    { tag: "br" },
-                    { tag: "br" },
                     {
                         tag: "h3",
                         innerHTML: `Updated ${getDate(repo.lastCommitDate)} `,
-                        style: {
+                        /*style: {
                             position: "absolute",
                             bottom: "10px",
-                        }
+                            left: (screen.width < 480) ? "50%" : null,
+                            transform: (screen.width < 480) ? "translateX(-50%)" : null,
+                        }*/
                     }
                 );
                 createLayout(layout, document.querySelector('#Project-ParentTable'));

@@ -86,6 +86,7 @@ body {
     #Content {
         padding: 15px;
         width: 100%;
+        padding-top: 30px!important;
     }
     #Project-ParentTable {
         text-align: center;
@@ -97,6 +98,7 @@ body {
         margin-bottom: 20px;
         padding: 20px;
         border-radius: 15px;
+        width: calc(100% - 70px)!important;
     }
     .Project-Child {
         width: 100%;
