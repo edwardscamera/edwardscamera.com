@@ -32,27 +32,28 @@ const Navigation = {
     Contact: 'contact.html'
 };
 
+let clouds = [];
+for (let i = 0; i < 30; i++) {
+    clouds.push({
+        element: document.createElement('IMG'),
+        width: Math.floor(Math.random() * 150) + 50,
+
+    });
+    clouds[i].x = Math.floor(Math.random() * window.innerWidth + (clouds[i].width * 2)) - clouds[i].width;
+    clouds[i].y = Math.random() * (window.innerHeight - clouds[i].width);
+    clouds[i].element.src = "images/cloud.png";
+    Object.assign(clouds[i].element.style, {
+        position: "absolute",
+        zIndex: -10,
+        left: clouds[i].x + 'px',
+        top: clouds[i].y + 'px',
+        width: clouds[i].width + 'px'
+    });
+    document.querySelector('#CloudContainer').appendChild(clouds[i].element);
+}
+
 if (screen.width >= 480) {
     // Clouds
-    let clouds = [];
-    for (let i = 0; i < 30; i++) {
-        clouds.push({
-            element: document.createElement('IMG'),
-            width: Math.floor(Math.random() * 150) + 50,
-
-        });
-        clouds[i].x = Math.floor(Math.random() * window.innerWidth + (clouds[i].width * 2)) - clouds[i].width;
-        clouds[i].y = Math.random() * (window.innerHeight - clouds[i].width);
-        clouds[i].element.src = "images/cloud.png";
-        Object.assign(clouds[i].element.style, {
-            position: "absolute",
-            zIndex: -10,
-            left: clouds[i].x + 'px',
-            top: clouds[i].y + 'px',
-            width: clouds[i].width + 'px'
-        });
-        document.querySelector('#CloudContainer').appendChild(clouds[i].element);
-    }
     window.setInterval(() => {
         clouds.forEach(cloud => {
             cloud.x += cloud.width / 400;
@@ -137,7 +138,21 @@ if (screen.width >= 480) {
 
     document.querySelector('#ClearFix').style.height = document.querySelector('#NavbarContainer').offsetHeight + 'px';
 }
-window.fetch('https://api.github.com/users/edwardscamera/repos').then(d => d.json()).then(data => {
+
+if (document.title.includes("projects")) window.fetch('https://api.github.com/users/edwardscamera/repos').then(d => d.json()).then(data => {
+
+    if (data.hasOwnProperty("message") && data.message.includes("API rate limit exceeded")) {
+        console.log(data.message);
+        document.querySelector("#Project-ParentTable").innerHTML = `
+        Too many requests are being made! <br/><br/>
+        Please wait before trying again. <br/><br/>
+        Or check out my <a href="https://github.com/edwardscamera" target="_blank">github page</a> right now.
+        `;
+        document.querySelector("#Project-ParentTable").style.display = "block";
+        return;
+    }
+
+
     let getDate = date => {
         let month = null;
         switch (date.getMonth()) {
@@ -157,7 +172,7 @@ window.fetch('https://api.github.com/users/edwardscamera/repos').then(d => d.jso
         return `${month} ${date.getDate() + 1} ${date.getFullYear()}`;
     };
     let renderRepos = () => {
-        let omit = ["edwardscamera.com"];
+        let omit = ["edwardscamera.com", "edwardscamera.github.io", "scratch-text-editor", "edwardscamera"];
         document.querySelector('#Project-ParentTable').innerText = '';
         data.forEach(repo => {
             if (!omit.includes(repo.name)) {
