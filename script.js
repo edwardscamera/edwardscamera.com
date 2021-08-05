@@ -53,6 +53,70 @@ for (let i = 0; i < 30; i++) {
     document.querySelector('#CloudContainer').appendChild(clouds[i].element);
 }
 
+// Background Color
+let points = {
+    0.0: [0, 0, 0],
+    0.22: [0, 0, 0],
+    0.24: [252, 169, 148],
+    0.26: [135, 206, 250],
+    0.5: [135, 206, 250],
+    0.74: [135, 206, 250],
+    0.76: [252, 169, 148],
+    0.78: [0, 0, 0],
+    1.0: [0, 0, 0],
+};
+
+const lerp = (a, b, v) => a + v * (b - a);
+
+function getLowest(points, x) {
+    const sorted = Object.keys(points)
+        .map(i => parseFloat(i))
+        .sort((a, b) => a - b);
+
+    if (x < sorted[0]) return sorted[0];
+    if (x > sorted[sorted.length - 1]) return sorted[sorted.length - 1];
+
+    let j = 0;
+    for (let i = 0; i < sorted.length; i++) {
+        if (x >= sorted[i]) j = sorted[i];
+    }
+
+    return j;
+}
+
+function getHighest(points, x) {
+    const sorted = Object.keys(points)
+        .map(i => parseFloat(i))
+        .sort((a, b) => a - b);
+
+    if (x < sorted[0]) return sorted[0];
+    if (x > sorted[sorted.length - 1]) return sorted[sorted.length - 1];
+
+    const lowest = getLowest(points, x);
+
+    return sorted[sorted.indexOf(lowest) + 1];
+
+}
+
+function getLerpAmount(points, x) {
+    return (x - getLowest(points, x)) / (getHighest(points, x) - getLowest(points, x));
+}
+
+function getColor(minutes) {
+    return [
+        lerp(points[getLowest(points, minutes / 1440)][0], points[getHighest(points, minutes / 1440)][0], getLerpAmount(points, minutes / 1440)),
+        lerp(points[getLowest(points, minutes / 1440)][1], points[getHighest(points, minutes / 1440)][1], getLerpAmount(points, minutes / 1440)),
+        lerp(points[getLowest(points, minutes / 1440)][2], points[getHighest(points, minutes / 1440)][2], getLerpAmount(points, minutes / 1440))
+    ];
+}
+
+const updateColors = () => {
+    const myval = getColor(((new Date()).getHours() * 60) + (new Date()).getMinutes());
+    document.body.style.backgroundColor = `rgb(${myval[0]}, ${myval[1]}, ${myval[2]})`;
+};
+updateColors();
+window.setInterval(updateColors, 60 * 1000);
+
 if (screen.width >= 480) {
     // Clouds
     window.setInterval(() => {
