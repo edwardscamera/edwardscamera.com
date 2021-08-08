@@ -267,6 +267,8 @@ if (document.title.includes("projects")) window.fetch('https://api.github.com/us
                                     tag: "a",
                                     class: ["NoSelect"],
                                     href: repo.homepage,
+                                    alt: "Click to view",
+                                    title: "Click to view",
                                     content: repo.name,
                                     target: "_blank",
                                 }],
@@ -300,6 +302,8 @@ if (document.title.includes("projects")) window.fetch('https://api.github.com/us
                         href: repo.downloadlink,
                         target: "_blank",
                         content: repo.name,
+                        alt: "Click to Download",
+                        title: "Click to Download",
                         /*content: "Download " + repo.currentver,*/
                     }],
                 };
