@@ -234,12 +234,26 @@ if (document.title.includes("projects")) window.fetch('https://api.github.com/us
             case 10: month = "November"; break;
             case 11: month = "December"; break;
         };
-        return `${month} ${date.getDate() + 1} ${date.getFullYear()}`;
+        let suffix = null;
+        switch (parseInt(date.getDate().toString().split("").pop())) {
+            case 0: suffix = "th"; break;
+            case 1: suffix = "st"; break;
+            case 2: suffix = "nd"; break;
+            case 3: suffix = "rd"; break;
+            case 4: suffix = "th"; break;
+            case 5: suffix = "th"; break;
+            case 6: suffix = "th"; break;
+            case 7: suffix = "th"; break;
+            case 8: suffix = "th"; break;
+            case 9: suffix = "th"; break;
+        }
+        return `${month} ${date.getDate()}${suffix}, ${date.getFullYear()}`;
     };
     let renderRepos = () => {
-        let omit = ["edwardscamera.com", "edwardscamera.github.io", "scratch-text-editor", "edwardscamera"];
+        let omit = ["edwardscamera.com", "edwardscamera.github.io", "tola-engine", "edwardscamera"];
         document.querySelector('#Project-ParentTable').innerText = '';
         data.forEach(repo => {
+            console.log(repo);
             if (!omit.includes(repo.name)) {
                 let layout = [
                     {
@@ -252,7 +266,7 @@ if (document.title.includes("projects")) window.fetch('https://api.github.com/us
                                 children: [{
                                     tag: "a",
                                     class: ["NoSelect"],
-                                    href: repo.html_url,
+                                    href: repo.homepage,
                                     content: repo.name,
                                     target: "_blank",
                                 }],
@@ -270,24 +284,25 @@ if (document.title.includes("projects")) window.fetch('https://api.github.com/us
                         ],
                     }
                 ];
-                if (repo.homepage !== "") layout[0].children.push({
+                layout[0].children.push({
                     tag: "h3",
                     children: [{
                         tag: "a",
-                        href: repo.homepage,
+                        href: repo.html_url,
                         target: "_blank",
-                        content: "Live Application",
+                        content: `GitHub Page ${repo.currentver ? " | " + repo.currentver : ""}`,
                     }],
                 });
-                if (repo.downloadlink) layout[0].children.push({
-                    tag: "h3",
+                if (repo.downloadlink) layout[0].children[0] = {
+                    tag: "h2",
                     children: [{
                         tag: "a",
                         href: repo.downloadlink,
                         target: "_blank",
-                        content: "Download " + repo.currentver,
+                        content: repo.name,
+                        /*content: "Download " + repo.currentver,*/
                     }],
-                });
+                };
                 layout[0].children.push(
                     {
                         tag: "h3",
