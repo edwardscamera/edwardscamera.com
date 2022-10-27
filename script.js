@@ -2,6 +2,16 @@
 const canvas = document.querySelector("canvas");
 const g = canvas.getContext("2d");
 
+const prng = (a) => {
+    a = parseFloat(a);
+    return (function () {
+        var t = (a += 0x6d2b79f5);
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    })();
+};
+
 const starOffset = {
     "x": 0,
     "y": 0,
@@ -19,6 +29,19 @@ mod2 = (a, b) => ((a % b) + b) % b;
 
 const starCount = (window.innerWidth * window.innerHeight / 500) / 2700 * 500;
 
+const starData = [];
+for (let i = 0; i < starCount; i++) starData.push({
+    "size": prng(i * 5) * 10,
+    "i": i,
+});
+const maevePlanetSrc = Object.assign(document.createElement("img"), { "src": "./images/maeve-planet.png" });
+
+starData.push({
+    "img": maevePlanetSrc,
+    "size": 116,
+    "i": starData.length,
+});
+
 window.setInterval(() => {
     if (window.innerWidth != canvas.width || window.innerHeight != canvas.height) {
         canvas.width = window.innerWidth;
@@ -29,16 +52,24 @@ window.setInterval(() => {
     g.fillRect(0, 0, canvas.width, canvas.height);
 
     g.fillStyle = "#fff";
-    for (let i = 0; i < starCount; i++) {
-        g.beginPath();
-        const size = prng(i * 5) * 10;
-        g.ellipse(
-            mod2(prng(i) * canvas.width + starOffset.x * (size / 10), canvas.width + size * 3) - size * 2,
-            mod2(prng(i * 2) * canvas.height + starOffset.y * (size / 10), canvas.height + size * 3) - size * 2,
-            size, size, 0, 0, 2 * Math.PI);
-        g.fill();
-
-    };
+    starData.sort((a,b)=>(a.size-b.size)).forEach(star => {
+        const i = star.i;
+        if (!star.img) {
+            g.beginPath();
+            g.ellipse(
+                mod2(prng(i) * canvas.width + starOffset.x * (star.size / 10), canvas.width + star.size * 3) - star.size * 2,
+                mod2(prng(i * 2) * canvas.height + starOffset.y * (star.size / 10), canvas.height + star.size * 3) - star.size * 2,
+                star.size, star.size, 0, 0, 2 * Math.PI);
+            g.fill();
+        } else {
+            console.log(prng(i) * canvas.width + starOffset.x - star.size * 2, -prng(i * 2) * canvas.height + starOffset.y - star.size * 2)
+            g.drawImage(star.img,
+                prng(i) * 2 * canvas.width + starOffset.x - star.size * 2,
+                prng(i * 2) * canvas.height + starOffset.y - star.size * 2,
+                star.size, 160 / (233 / star.size)
+            );
+        }
+    });
 
     starOffset.x += starVelocity.x;
     starOffset.y += starVelocity.y;
@@ -51,15 +82,6 @@ if (screen.width >= 480) window.addEventListener("mousemove", (evt) => {
     targetStarVelocity.y = (-(evt.clientY - canvas.height / 2) / 30);
 });
 
-const prng = (a) => {
-    a = parseFloat(a);
-    return (function () {
-        var t = (a += 0x6d2b79f5);
-        t = Math.imul(t ^ (t >>> 15), t | 1);
-        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    })();
-};
 //#endregion
 //#region CONTAINERS
 
@@ -122,8 +144,10 @@ window.addEventListener("load", () => {
             container.appendChild(sub);
 
             sub.innerHTML = `
-                ${"img" in item ? `<img src="${item.img}">` : ""}
-                <a href="${item.page}" target="_blank"><h2>${item.title}</h2></a>
+                <a href="${item.page}" target="_blank">
+                    ${"img" in item ? `<img src="${item.img}">` : ""}
+                    <h2>${item.title}</h2>
+                </a>
                 <p id="${dataName}__${item.github}">${(() => {
                     window.fetch(`https://api.github.com/repos/edwardscamera/${item.github}`).then(r => r.json()).then(data => {
                         document.querySelector(`#${dataName}__${item.github}`).innerText = data.description;
