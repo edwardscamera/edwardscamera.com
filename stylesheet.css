@@ -56,16 +56,22 @@ h1 {
     min-width: 400px;
 }
 
+.container {
+    display: table;
+    border-spacing: 20px 0px;
+    margin: 0 auto;
+}
+
 .container > div {
     width: 300px;
     user-select: none;
     transition: .3s ease-in-out;
-    margin: 0px 15px 0px 15px;
-    display: inline-block;
+    display: table-cell;
     vertical-align: top;
 }
 .container > div:hover {
     transform: scale(1.1);
+    box-shadow: 0 8px 8px -4px lightblue;
 }
 
 .container > div > img {

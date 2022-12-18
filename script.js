@@ -62,7 +62,6 @@ window.setInterval(() => {
                 star.size, star.size, 0, 0, 2 * Math.PI);
             g.fill();
         } else {
-            console.log(prng(i) * canvas.width + starOffset.x - star.size * 2, -prng(i * 2) * canvas.height + starOffset.y - star.size * 2)
             g.drawImage(star.img,
                 prng(i) * 2 * canvas.width + starOffset.x - star.size * 2,
                 prng(i * 2) * canvas.height + starOffset.y - star.size * 2,
