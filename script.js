@@ -40,6 +40,9 @@ starData.push({
     "img": maevePlanetSrc,
     "size": 116,
     "i": starData.length,
+    "click": () => {
+        window.open("./hint.html", "_blank");
+    },
 });
 
 window.setInterval(() => {
@@ -62,11 +65,17 @@ window.setInterval(() => {
                 star.size, star.size, 0, 0, 2 * Math.PI);
             g.fill();
         } else {
+            const ax = prng(i) * 2 * canvas.width + starOffset.x - star.size * 2
+            const ay = prng(i * 2) * canvas.height + starOffset.y - star.size * 2;
             g.drawImage(star.img,
-                prng(i) * 2 * canvas.width + starOffset.x - star.size * 2,
-                prng(i * 2) * canvas.height + starOffset.y - star.size * 2,
+                ax,
+                ay,
                 star.size, 160 / (233 / star.size)
             );
+            if (Math.sqrt((mouse.y - ay)**2 + (mouse.x - ax)**2) < star.size && star.click && mouse.down) {
+                mouse.down = false;
+                star.click();
+            } 
         }
     });
 
@@ -76,9 +85,25 @@ window.setInterval(() => {
     starVelocity.y += (targetStarVelocity.y - starVelocity.y) / 50;
 }, 1000 / 60);
 
-if (screen.width >= 480) window.addEventListener("mousemove", (evt) => {
-    targetStarVelocity.x = (-(evt.clientX - canvas.width / 2) / 30);
-    targetStarVelocity.y = (-(evt.clientY - canvas.height / 2) / 30);
+const mouse = {
+    "x": 0,
+    "y": 0,
+    "down": false,
+}
+
+window.addEventListener("mousemove", (evt) => {
+    if (screen.width >= 480) {
+        targetStarVelocity.x = (-(evt.clientX - canvas.width / 2) / 30);
+        targetStarVelocity.y = (-(evt.clientY - canvas.height / 2) / 30);
+    }
+    mouse.x = evt.clientX;
+    mouse.y = evt.clientY;
+});
+window.addEventListener("mousedown", evt => {
+    mouse.down = true;
+});
+window.addEventListener("mouseup", evt => {
+    mouse.down = false;
 });
 
 //#endregion
